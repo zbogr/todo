@@ -11,7 +11,7 @@ export default function AddTodo({ onAdd }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex mb-4">
+    <form onSubmit={handleSubmit} className="flex mb-4 text-gray-900">
       <input
         type="text"
         placeholder="Нова задача..."
