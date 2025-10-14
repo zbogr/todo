@@ -1,30 +1,28 @@
-import React, { useState } from "react";
+// AddTodo.jsx
+import React, {useState} from "react";
 
-export default function AddTodo({ onAdd }) {
-  const [text, setText] = useState("");
+export default function AddTodo({onAdd}) {
+	const [text, setText] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();           // не перезавантажує сторінку
-    if (!text.trim()) return;     // пропускаємо пустий текст
-    onAdd(text);                  // викликаємо функцію з батьківського компонента
-    setText("");                  // очищаємо поле
-  };
+	const submit = (e) => {
+		e.preventDefault();
+		const t = text.trim();
+		if (!t) return;
+		onAdd(t);
+		setText("");
+	};
 
-  return (
-    <form onSubmit={handleSubmit} className="flex mb-4 text-gray-900">
-      <input
-        type="text"
-        placeholder="Нова задача..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        className="flex-grow border border-gray-300 rounded-l-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-      />
-      <button
-        type="submit"
-        className="bg-indigo-500 text-white px-4 rounded-r-lg hover:bg-indigo-600 transition"
-      >
-        Додати
-      </button>
-    </form>
-  );
+	return (
+		<form onSubmit={submit} className="flex gap-2 mb-4">
+			<input
+				value={text}
+				onChange={(e) => setText(e.target.value)}
+				placeholder="Нова задача..."
+				className="flex-1 border rounded px-2 py-1 focus:outline-none focus:ring"
+			/>
+			<button type="submit" className="bg-indigo-600 text-white px-4 rounded">
+				Додати
+			</button>
+		</form>
+	);
 }

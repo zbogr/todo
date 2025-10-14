@@ -1,21 +1,15 @@
-import React from 'react'
-import TodoApp from "./components/TodoApp"
-import './App.css'
+import React from "react";
+import TodoApp from "./components/TodoApp";
 
-function App() {
-
-
+export default function App() {
   return (
-    <>
-     <div className='min-h-screen bg-gray-100 flex flex-col items-center p-6'>
-      <h1 className="text-3xl font-bold text-indigo-600 mb-6">
-        ToDo App (React + Node)
-      </h1>
-      <TodoApp />
-     </div>
-    </>
-  )
+    <div className="min-h-screen bg-gray-100 flex items-start justify-center p-6">
+      <div className="w-full max-w-4xl">
+        <header className="mb-6">
+          <h1 className="text-3xl font-bold text-indigo-600">ToDo (React + Node)</h1>
+        </header>
+        <TodoApp />
+      </div>
+    </div>
+  );
 }
-
-
-export default App
