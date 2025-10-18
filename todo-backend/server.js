@@ -95,11 +95,6 @@ app.delete("/api/tasks/:id", (req, res) => {
 });
 
 // Видалити проєкт (може зберігатись окремо або просто підтвердження)
-app.delete("/api/projects/:name", (req, res) => {
-	const projectName = req.params.name;
-	projects = projects.filter((p) => p !== projectName); // якщо проєкти окремо зберігаються
-	res.json({message: `Проєкт ${projectName} видалено`});
-});
 
 // ✅ Видалення самого проєкту
 app.delete("/api/projects/:name", (req, res) => {

@@ -13,7 +13,10 @@ export default function TaskModal({task, closeTask, updateTask}) {
 	// Додавання підпункту
 	const addSubtask = (text) => {
 		const t = text.trim();
-		if (!t) return;
+		if (!t || t.length > 20) {
+			alert("Назва підпункту повинна бути від 1 до 20 символів.");
+			return;
+		}
 		const updated = {
 			...local,
 			subtasks: [

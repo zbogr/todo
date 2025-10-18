@@ -40,7 +40,10 @@ export default function TodoApp() {
 	// Додати проект (викликається з ProjectSelector)
 	const addProject = async (name) => {
 		name = name.trim();
-		if (!name) return;
+		if (!name || name.length > 20) {
+			alert("Назва проекту повинна бути від 1 до 20 символів.");
+			return;
+		}
 		try {
 			const res = await fetch(`${API}/projects`, {
 				method: "POST",
@@ -109,23 +112,37 @@ export default function TodoApp() {
 
 	// Видалити проєкт разом з усіма задачами, що до нього належать
 	const deleteProject = async (projectName) => {
-		// 1. Видаляємо із локального стейту список проектів
-		setProjects((prev) => prev.filter((p) => p !== projectName));
+		// Невелике перетворення і захист
+		projectName = (projectName || "").toString();
 
-		// 2. Видаляємо задачі по проєкту з локального стейту
+		// Оптимістичне оновлення локального стану
+		setProjects((prev) => prev.filter((p) => p !== projectName));
 		setTasks((prev) => prev.filter((task) => task.project !== projectName));
 
-		// 3. Синхронізуємо з бекендом — DELETE проекту
-		await fetch(`/api/projects/${projectName}`, {
-			method: "DELETE",
-		});
+		// Якщо поточний проєкт видалено — переключаємося на перший доступний або на default
+		setCurrentProject((prev) => (prev === projectName ? projects[0] || "default" : prev));
 
-		// 4. Масове видалення задач на сервері
-		await fetch(`/api/tasks/delete-by-project`, {
-			method: "POST",
-			headers: {"Content-Type": "application/json"},
-			body: JSON.stringify({project: projectName}),
-		});
+		try {
+			// Використовуємо константу API та кодуємо ім'я проєкту
+			const delRes = await fetch(`${API}/projects/${encodeURIComponent(projectName)}`, {
+				method: "DELETE",
+			});
+			if (!delRes.ok) {
+				console.error("Delete project failed:", await delRes.text());
+			}
+
+			// Масове видалення задач на сервері
+			const delTasksRes = await fetch(`${API}/tasks/delete-by-project`, {
+				method: "POST",
+				headers: {"Content-Type": "application/json"},
+				body: JSON.stringify({project: projectName}),
+			});
+			if (!delTasksRes.ok) {
+				console.error("Delete tasks by project failed:", await delTasksRes.text());
+			}
+		} catch (err) {
+			console.error("Delete project error:", err);
+		}
 	};
 
 	// Видалити задачу
@@ -172,7 +189,7 @@ export default function TodoApp() {
 	const filteredTasks = tasks.filter((t) => (t.project || "default") === currentProject);
 
 	return (
-		<div className="bg-white p-6 rounded-2xl shadow-md">
+		<div className="bg-white p-6 rounded-2xl shadow-md flex flex-row flex-wrap w-full">
 			<ProjectSelector
 				projects={projects}
 				activeProject={currentProject}
@@ -180,20 +197,21 @@ export default function TodoApp() {
 				deleteProject={deleteProject}
 				onAdd={addProject}
 			/>
+			<div className="flex-col">
+				<AddTodo onAdd={addTask} />
 
-			<AddTodo onAdd={addTask} />
+				<TodoList
+					tasks={filteredTasks}
+					onToggle={toggleComplete}
+					onDelete={deleteTask}
+					onEditTitle={updateTitle}
+					openTask={openTask}
+				/>
 
-			<TodoList
-				tasks={filteredTasks}
-				onToggle={toggleComplete}
-				onDelete={deleteTask}
-				onEditTitle={updateTitle}
-				openTask={openTask}
-			/>
-
-			{selectedTask && (
-				<TaskModal task={selectedTask} closeTask={closeTask} updateTask={updateTask} />
-			)}
+				{selectedTask && (
+					<TaskModal task={selectedTask} closeTask={closeTask} updateTask={updateTask} />
+				)}
+			</div>
 		</div>
 	);
 }
